@@ -6,6 +6,8 @@ const port = process.env.PORT ?? "5000";
 
 // Middlewares
 
+// Connecting with Database
+
 // Routes 
 app.get('/', (req, res) => {
     res.send('Hello World!')
