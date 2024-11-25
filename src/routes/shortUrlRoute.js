@@ -1,31 +1,33 @@
-const express = require('express')
+const express = require('express');
+const { getShortURlController, createShortURlController, updateShortURlController, partialUpdateShortURlController, deleteShortURlController } = require('../controllers/shortUrlController');
 const router = express.Router();
 
-
 // GET
-router.get('/', (req, res) => {
-    res.send('Get method called')
-})
+router.get('/', getShortURlController)
+router.post('/', createShortURlController)
+router.put('/', updateShortURlController)
+router.patch('/', partialUpdateShortURlController)
+router.delete('/', deleteShortURlController)
 
 // POST
-router.post('/', (req, res) => {
-    res.send('Post method called')
-})
+// router.post('/', (req, res) => {
+//     res.send('Post method called')
+// })
 
-// PUT
-router.put('/dfd', (req, res) => {
-    res.send('Put method called')
-})
+// // PUT
+// router.put('/dfd', (req, res) => {
+//     res.send('Put method called')
+// })
 
-// PATCH 
-router.patch('/dfdf', (req, res) => {
-    res.send('Patch method called')
-})
+// // PATCH 
+// router.patch('/dfdf', (req, res) => {
+//     res.send('Patch method called')
+// })
 
-// Delete
-router.delete('/ddfd', (req, res) => {
-    res.send('Delete method called')
-})
+// // Delete
+// router.delete('/ddfd', (req, res) => {
+//     res.send('Delete method called')
+// })
 
 const shortUrlRouter = router;
 module.exports = shortUrlRouter;

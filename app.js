@@ -10,6 +10,7 @@ const port = process.env.PORT ?? "5000";
 connectDatabase()
 
 // Middlewares
+app.use(express.json()) // Body pharser
 
 // Routes 
 // app.get('/', (req, res) => {

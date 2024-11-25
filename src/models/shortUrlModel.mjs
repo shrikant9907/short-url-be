@@ -12,5 +12,5 @@ const SchemaObject = {
 
 const shortUrlSchema = new Schema(SchemaObject, { timestamps: true })
 
-const ShortURL = mongoose.model('ShortURL', shortUrlSchema);
-export default ShortURL;
+const TESTShortURL = mongoose.model('ShortURL', shortUrlSchema);
+export default TESTShortURL;
