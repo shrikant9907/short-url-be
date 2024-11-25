@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node --env-file=.env.prod app.js",
-    "dev": "nodemon --env-file=.env.dev app.js"
+    "dev": "nodemon --env-file=.env.dev app.js",
+    "deploy": "nodemon --env-file=.env.prod app.js"
   },
   "author": "",
   "license": "ISC",
