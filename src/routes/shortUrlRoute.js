@@ -7,7 +7,7 @@ router.get('/', getShortURlController)
 router.post('/', createShortURlController)
 router.put('/', updateShortURlController)
 router.patch('/', partialUpdateShortURlController)
-router.delete('/', deleteShortURlController)
+router.delete('/:id', deleteShortURlController)
 
 // POST
 // router.post('/', (req, res) => {
