@@ -5,8 +5,8 @@ const router = express.Router();
 // GET
 router.get('/', getShortURlController)
 router.post('/', createShortURlController)
-router.put('/', updateShortURlController)
-router.patch('/', partialUpdateShortURlController)
+router.put('/:id', updateShortURlController)
+router.patch('/:id', partialUpdateShortURlController)
 router.delete('/:id', deleteShortURlController)
 
 // POST
