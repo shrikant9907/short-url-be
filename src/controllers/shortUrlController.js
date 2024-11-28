@@ -1,152 +1,82 @@
 const asyncHandler = require('express-async-handler');
 const ShortURL = require('../models/shortUrlModel');
 const { StatusCodes } = require('http-status-codes');
-const { getShortString } = require('../utils/helper');
+const { getShortString, sendResponse, validateObjectId } = require('../utils/helper');
 
+// Get Short URLs (all or filtered by original URL), sorted in descending order
 const getShortURlController = asyncHandler(async (req, res) => {
+    const { originalUrl } = req.query;
 
-    // const shortURLs = await ShortURL.find({ originalUrl: "test" });
-    const shortURLs = await ShortURL.find(); // ALl Records 
+    const query = originalUrl ? { originalUrl } : {};
+    const shortURLs = await ShortURL.find(query).sort({ createdAt: -1 });
 
-    if (!shortURLs) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-            error: 'Unable to fatch user information ', data: shortURLs
-        });
+    if (!shortURLs.length) {
+        return sendResponse(res, StatusCodes.NOT_FOUND, 'No URLs found');
     }
 
-    return res.status(StatusCodes.OK).json({ message: 'Short URL Fetched Successfully.', data: shortURLs });
+    sendResponse(res, StatusCodes.OK, 'Short URLs fetched successfully', shortURLs);
 });
 
+// Create a new Short URL
 const createShortURlController = asyncHandler(async (req, res) => {
     const { originalUrl } = req.body;
 
-    // Original URL not found (Bad Request)
     if (!originalUrl) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-            error: 'Original URL is required', data: null
-        });
+        return sendResponse(res, StatusCodes.BAD_REQUEST, 'Original URL is required');
     }
 
     const shortUrlString = getShortString(9);
     const newShortUrl = new ShortURL({
         originalUrl,
-        shortUrl: process.env.SITE_URL + "/" + shortUrlString
-    })
+        shortUrl: `${process.env.SITE_URL}/${shortUrlString}`,
+    });
 
-    // Created
-    const responseData = await newShortUrl.save(); // Save / Update
-    if (responseData) {
-        return res.status(StatusCodes.CREATED).json({ message: 'Short URL Create Successfully.', data: responseData });
-    }
-
-    // Error
-    return res.status(StatusCodes.FORBIDDEN).json({ message: 'Something wrong.', data: responseData });
+    const savedData = await newShortUrl.save();
+    sendResponse(res, StatusCodes.CREATED, 'Short URL created successfully', savedData);
 });
 
+// Update a Short URL (full update)
 const updateShortURlController = asyncHandler(async (req, res) => {
     const { originalUrl } = req.body;
     const { id } = req.params;
 
-    // Bad Request if Id not found in the URL
+    if (!validateObjectId(id)) {
+        return sendResponse(res, StatusCodes.BAD_REQUEST, 'Invalid ID format');
+    }
+
     if (!originalUrl) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-            error: 'Original URL is required', data: null
-        });
+        return sendResponse(res, StatusCodes.BAD_REQUEST, 'Original URL is required');
     }
 
-    // Bad Request if Id not found in the URL
-    if (!id) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-            error: 'ID not found in the URL', data: null
-        });
-    }
-
-    // Find and Not found
-    const findURL = await ShortURL.find({ _id: id });
+    const findURL = await ShortURL.findById(id);
     if (!findURL) {
-        return res.status(StatusCodes.NOT_FOUND).json({ message: 'Unable to find Url with given id', data: null });
+        return sendResponse(res, StatusCodes.NOT_FOUND, 'URL not found');
     }
 
-    // Find and Update
-    // const updateData = await ShortURL.findOneAndUpdate({ _id: id }, { originalUrl: originalUrl }, { new: true })
-    // const updateData = await ShortURL.findOneAndReplace({ _id: id }, { originalUrl: originalUrl }, { new: true })
-    const updateData = await ShortURL.findByIdAndUpdate({ _id: id }, { originalUrl: originalUrl }, { new: true }) // By Default original that's why passing third new parameter
-    if (updateData) {
-        return res.status(200).json({ message: 'Short URL Updated', data: updateData });
-    }
-
-    // Error
-    return res.status(StatusCodes.FORBIDDEN).json({ message: 'Unable to update short url.', data: null });
+    findURL.originalUrl = originalUrl;
+    const updatedData = await findURL.save();
+    sendResponse(res, StatusCodes.OK, 'Short URL updated successfully', updatedData);
 });
 
-// Diffience unclear
-const partialUpdateShortURlController = asyncHandler(async (req, res) => {
-    const { originalUrl } = req.body; ///  4 - 5 Put (Full) (Patch partial)
-    const { id } = req.params;
-
-    // Bad Request if Id not found in the URL
-    if (!originalUrl) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-            error: 'Original URL is required', data: null
-        });
-    }
-
-    // Bad Request if Id not found in the URL
-    if (!id) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-            error: 'ID not found in the URL', data: null
-        });
-    }
-
-    // Find and Not found
-    const findURL = await ShortURL.find({ _id: id });
-    if (!findURL) {
-        return res.status(StatusCodes.NOT_FOUND).json({ message: 'Unable to find Url with given id', data: null });
-    }
-
-    // Find and Update
-    const updateData = await ShortURL.findByIdAndUpdate({ _id: id }, { originalUrl: originalUrl }, { new: true }) // By Default original that's why passing third new parameter
-    if (updateData) {
-        return res.status(200).json({ message: 'Short URL Updated', data: updateData });
-    }
-
-    // Error
-    return res.status(StatusCodes.FORBIDDEN).json({ message: 'Unable to update short url.', data: null });
-});
-
+// Delete a Short URL
 const deleteShortURlController = asyncHandler(async (req, res) => {
-
     const { id } = req.params;
-    // Bad Request if Id not found in the URL
-    if (!id) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-            error: 'ID not found in the URL', data: null
-        });
+
+    if (!validateObjectId(id)) {
+        return sendResponse(res, StatusCodes.BAD_REQUEST, 'Invalid ID format');
     }
 
-    // Invalid ID
-
-    // Find and Not found
-    const findURL = await ShortURL.find({ _id: id });
-    if (!findURL) {
-        return res.status(StatusCodes.NOT_FOUND).json({ message: 'Unable to find Url with given id', data: null });
+    const deletedData = await ShortURL.findByIdAndDelete(id);
+    if (!deletedData) {
+        return sendResponse(res, StatusCodes.NOT_FOUND, 'URL not found');
     }
 
-    // Find and Delete
-    const deletedData = await ShortURL.findByIdAndDelete({ _id: id });
-    if (deletedData) {
-        return res.status(200).json({ message: 'Short URL Deleted', data: deletedData });
-    }
-
-    // Error
-    return res.status(StatusCodes.FORBIDDEN).json({ message: 'Unable to delete short url.', data: null });
-
+    sendResponse(res, StatusCodes.OK, 'Short URL deleted successfully', deletedData);
 });
 
 module.exports = {
     getShortURlController,
     createShortURlController,
     updateShortURlController,
-    partialUpdateShortURlController,
-    deleteShortURlController
-}
+    deleteShortURlController,
+};
