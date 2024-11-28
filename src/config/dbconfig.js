@@ -1,4 +1,13 @@
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+
+// Load the correct .env file based on NODE_ENV
+const result = dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+
+if (result.error) {
+    console.error(`Error loading .env.${process.env.NODE_ENV} file`);
+    process.exit(1);
+}
 
 const connectDatabase = async () => {
     try {

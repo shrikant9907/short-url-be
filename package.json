@@ -4,14 +4,17 @@
   "description": "Short URL Generator - Backend Application in Node JS, Express JS and MongoDB",
   "main": "app.js",
   "scripts": {
-    "start": "node --env-file=.env.prod app.js",
-    "dev": "nodemon --env-file=.env.dev app.js",
-    "deploy": "nodemon --env-file=.env.prod app.js"
+    "start": "cross-env NODE_ENV=prod node -r dotenv/config app.js",
+    "dev": "cross-env NODE_ENV=dev node -r dotenv/config app.js",
+    "deploy": "cross-env NODE_ENV=prod node -r dotenv/config app.js",
+    "test": "cross-env NODE_ENV=test mocha --require @babel/register 'src/tests/**/*.test.js'"
+
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "chai": "^3.5.0",
     "compression": "^1.7.5",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -28,7 +31,9 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
-    "chai": "^5.1.2",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/register": "^7.25.9",
+    "cross-env": "^7.0.3",
     "mocha": "^10.8.2",
     "supertest": "^7.0.0"
   }

@@ -1,4 +1,4 @@
-require('dotenv').config();
+
 const express = require('express');
 const helmet = require('helmet');
 const compression = require('compression');
@@ -6,6 +6,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const connectDatabase = require('./src/config/dbconfig');
 const shortUrlRouter = require('./src/routes/shortUrlRoute');
+
 const app = express();
 const hostname = process.env.HOSTNAME ?? "localhost";
 const port = process.env.PORT ?? "5000";
