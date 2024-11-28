@@ -4,6 +4,8 @@ const helmet = require('helmet');
 const compression = require('compression');
 const cors = require('cors');
 const morgan = require('morgan');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 const connectDatabase = require('./src/config/dbconfig');
 const shortUrlRouter = require('./src/routes/shortUrlRoute');
 
@@ -30,6 +32,32 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+
+// Swagger definition
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Short URL API',
+            version: '1.0.0',
+            description: 'API for managing short URLs',
+        },
+        servers: [
+            {
+                url: `http://localhost:${port}`,
+            },
+        ],
+    },
+    apis: ['./src/routes/*.js'],  // Point to the router file
+};
+
+// Initialize Swagger JSDoc
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+
+// Set up Swagger UI for viewing the API docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+// App Routes
 app.use('/api/shorturl', shortUrlRouter)
 
 // Server Start Process
